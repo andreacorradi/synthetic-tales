@@ -38,83 +38,60 @@ const verbs = ["was", "gad", "did", "said", "went", "got", "made", "knew", "thou
 "remained", "suggested", "raised", "passed", "sold", "required", "reported", "decided", "pulled"]
 
 const adj = ["other", "new", "good", "high", "old", "great", "big", "American", "small", "large", "national", "young", "different", "black",
-"long", "little", "important", "political", "bad", "white", "real", "best", "right", "social", "only"
-26.    public
-27.    sure
-28.    low
-29.    early
-30.    able
-31.    human
-32.    local
-33.    late
-34.    hard
-35.    major
-36.    better
-37.    economic
-38.    strong
-39.    possible
-40.    whole
-41.    free
-42.    military
-43.    true
-44.    federal
-45.    international
-46.    full
-47.    special
-48.    easy
-49.    clear
-50.    recent
-51.    certain
-52.    personal
-53.    open
-54.    red
-55.    difficult
-56.    available
-57.    likely
-58.    short
-59.    single
-60.    medical
-61.    current
-62.    wrong
-63.    private
-64.    past
-65.    foreign
-66.    fine
-67.    common
-68.    poor
-69.    natural
-70.    significant
-71.    similar
-72.    hot
-73.    dead
-74.    central
-75.    happy
-76.    serious
-77.    ready
-78.    simple
-79.    left
-80.    physical
-81.    general
-82.    environmental
-83.    financial
-84.    blue
-85.    democratic
-86.    dark
-87.    various
-88.    entire
-89.    close
-90.    legal
-91.    religious
-92.    cold
-93.    final
-94.    main
-95.    green
-96.    nice
-97.    huge
-98.    popular
-99.    traditional
-100.  cultural
-]
+"long", "little", "important", "political", "bad", "white", "real", "best", "right", "social", "only", "public", "sure", "low", "early", "able",
+"human", "local", "late", "hard", "major", "better", "economic", "strong", "possible", "whole", "free", "military", "true", "federal", "international",
+"full", "special", "easy", "clear", "recent"]
+
+// certain
+// personal
+// open
+// red
+// difficult
+// available
+// likely
+// short
+// single
+// medical
+// current
+// wrong
+// private
+// past
+// foreign
+// fine
+// common
+// poor
+// natural
+// significant
+// similar
+// hot
+// dead
+// central
+// happy
+// serious
+// ready
+// simple
+// left
+// physical
+// general
+// environmental
+// financial
+// blue
+// democratic
+// dark
+// various
+// entire
+// close
+// legal
+// religious
+// cold
+// final
+// main
+// green
+// nice
+// huge
+// popular
+// traditional
+// cultural
 
 function setup() {
   noCanvas()
@@ -242,8 +219,10 @@ function generate(prompt) {
         const sentence = result.sample.split(/[!?.]/g)[0]
         //select('.result').html(capitalizeFirstLetter(txt) + sentence + ".")
         step++
+        const randomNum = Math.floor(Math.random() * adj.length)
+        const titleAdj = adj[randomNum]
         if(step === 1) {
-          taleTitle.html(tempResult)
+          taleTitle.html("The " + titleAdj + " " + tempResult)
         }
         var o = document.createElement("p")
         o.classList.add("pre-result")

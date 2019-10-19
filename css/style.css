@@ -126,8 +126,8 @@ button {
   height: 3rem; 
   border-radius: 50%;
   font-size: 2rem;
-  border: 1px solid violet;
-  color: violet;
+  border: 1px solid #0000ff;
+  color: #0000ff;
 }
 span#length {
   margin-right: 4rem;
@@ -155,11 +155,16 @@ p.pre-result {
   width: 60%;
   margin-top: 2rem;
   line-height: 1.2rem;
-  color: violet;
+  color: #0000ff;
 }
 p.pre-result:first-child {
   margin-top: 8rem;
 }
 p.result:last-child {
   margin-bottom: 3rem;
+}
+#tale-title {
+  font-family: "EB Garamond", sans-serif;
+  font-size: 3rem;
+  margin-top: 2rem;
 }
