@@ -38,18 +38,21 @@ function setup() {
 
   // Create the LSTM Generator passing it the model directory
   // charRNN = ml5.charRNN('./models/woolf/', textModelReady);
-  charRNN = ml5.charRNN('./models/grimm/', textModelReady)
+  charRNN = ml5.charRNN('./models/andersengrimm/', textModelReady)
 
   // Grab the DOM elements
-  textInput = select('#textInput')
-  lengthSlider = select('#lenSlider')
-  tempSlider = select('#tempSlider')
-  button = select('#generate')
+  // textInput = select('#textInput')
+  // lengthSlider = select('#lenSlider')
+  // tempSlider = select('#tempSlider')
+  // button = select('#generate')
+  next = select('#next')
+  next.hide()
 
   // DOM element events
   // button.mousePressed(generate)
   // lengthSlider.input(updateSliders)
   // tempSlider.input(updateSliders)
+  next.mousePressed(start)
 }
 
 // Update the slider values
@@ -80,17 +83,21 @@ function gotResult(err, results) {
   tempResult = results[0].label
   console.log(tempResult)
   // The results are in an array ordered by confidence.
-  if (nf(results[0].confidence, 0, 2) > 0.1 && timer >= timeTh) {
+  if (nf(results[0].confidence, 0, 2) > 0.2 && timer >= timeTh) {
     console.log("YES! I saw a " + results[0].label)
     resultsP.html('I\'m seeing a ' + results[0].label)
     generate(results[0].label)
+    next.show()
   } else {
     resultsP.html('I\'m not able to understand what I\'m seeing :(')
     classifyVideo()
   }
-
   if (timer >= timeTh) timer = 0
   // resultsP.html('I\'m seeing a' + results[0].label + ' ' + nf(results[0].confidence, 0, 2))
+}
+
+function start() {
+  classifyVideo()
 }
 
 // Generate new text
