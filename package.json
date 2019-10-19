@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "stateman": "^0.3.0-beta.2"
+    "jquery": "^3.4.1",
+    "stateman": "^0.3.0-beta.2",
+    "static-player": "0.0.13"
   }
 }

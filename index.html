@@ -29,18 +29,30 @@
       </p> -->
       <!-- <p id="status">Loading Model</p> -->
       <!-- <button id="generate">generate</button> -->
-      <p id="result"></p>
-      <button id="next">&rarr;</button>
+      <!-- <p class="result"></p> -->
+      <div id="tale-container">
+        <div id="tale-title"></div>
+        <div id="tale"></div>
+        <div id="control">
+          <!-- <button class="next">&rarr;</button> -->
+          <div class="next" process="./assets/eye.svg" process-keep></div>
+        </div> 
+      </div>
   </main>
   <footer>
-
+    <p id="footer-message">Loading model and video...</p>
   </footer>
 
   <!-- <script type="text/javascript" src="node_modules/stateman/stateman.min.js"></script>
   <script type="text/javascript" src="js/states/input-state.js"></script>
   <script type="text/javascript" src="js/states/sentence-state.js"></script>
   <script type="text/javascript" src="js/states.js"></script> -->
+  <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>
   <script src="js/sketch.js"></script>
+  <script type="text/javascript" src="node_modules/static-player/static-player.js"></script>
+  <script type="text/javascript">
+    window.StaticPlayer.getInstance().begin()
+  </script>
 </body>
 
 </html>
