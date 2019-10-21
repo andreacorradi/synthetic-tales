@@ -11,87 +11,54 @@ For more models see: https://github.com/ml5js/ml5-data-and-training/tree/master/
 === */
 
 let charRNN
-let textInput
-let lengthSlider
-let tempSlider
-let button
 let runningInference = false
 
-let textLength = 200
+// Text generator parameters
+let textLength = 250
 let textTemp = 0.5
 
 let classifier
 let video
+
 let resultsP
+let next
+let intro
+
 let tempResult = ""
+let titleAdj = ""
 let timer = 0
 const timeTh = 10
+const confidenceTh = 0.2
 
 let step = 0
 
-const verbs = ["was", "gad", "did", "said", "went", "got", "made", "knew", "thought", "took", "saw", "came", "wanted", "looked", "used",
-"found", "gave", "told", "worked", "called", "tried", "asked", "needed", "felt", "became", "left", "put", "meant", "kept", "let", "began",
-"seemed", "helped", "talked", "turned", "started", "showed", "heard", "played", "ran", "moved", "liked", "lived", "believed", "held", "brough", 
-"happened", "wrote", "provided", "sat", "stood", "lost", "paid", "met", "included", "continued", "set", "learnt", "changed", "led", "understood",
-"watched", "followed", "stopped", "created", "spoke", "read", "allowed", "added", "spent", "grew", "opened", "walked", "won", "offered", "remembered",
-"loved", "considered", "appeared", "bought", "waited", "served", "died", "sent", "expected", "built", "stayed", "fell", "cut", "reached", "killed",
-"remained", "suggested", "raised", "passed", "sold", "required", "reported", "decided", "pulled"]
+
+const verbs = [
+  {
+    key: "static",
+    values: ["was", "had", "did", "said", "got", "made", "knew", "thought", "saw", "came", "looked", "felt", "told", "began",
+    "seemed", "started", "believed", "held", "brought", "happened", "watched", "appeared", "asked"]
+  },
+  {
+    key: "dynamic",
+    values: ["needed", "became", "found", "gave", "used", "worked", "called", "tried", "asked", "need", "kept", "let", "helped", "talked",
+    "turned", "heard", "played", "ran", "moved", "liked", "wrote", "provided", "sat", "stood", "lost", "paid", "met", "included", "continued", "set", "learnt",
+    "changed", "understood", "followed", "stopped", "created", "spoke", "read", "allowed", "added", "spent", "opened", "walked", "won", "offered", "remembered",
+    "considered ","appeared", "bought", "waited", "served", "sent", "expected", "built", "stayed", "suggested", "raised", "sold", "required", "decided", "pulled", "meant"]
+  },
+  {
+    key: "final",
+    values: ["loved", "died", "fell", "cut", "reached", "killed", "remained", "passed", "reported", "lived", "ended", "showed", "lived"]
+  }
+]
 
 const adj = ["other", "new", "good", "high", "old", "great", "big", "American", "small", "large", "national", "young", "different", "black",
 "long", "little", "important", "political", "bad", "white", "real", "best", "right", "social", "only", "public", "sure", "low", "early", "able",
 "human", "local", "late", "hard", "major", "better", "economic", "strong", "possible", "whole", "free", "military", "true", "federal", "international",
-"full", "special", "easy", "clear", "recent"]
-
-// certain
-// personal
-// open
-// red
-// difficult
-// available
-// likely
-// short
-// single
-// medical
-// current
-// wrong
-// private
-// past
-// foreign
-// fine
-// common
-// poor
-// natural
-// significant
-// similar
-// hot
-// dead
-// central
-// happy
-// serious
-// ready
-// simple
-// left
-// physical
-// general
-// environmental
-// financial
-// blue
-// democratic
-// dark
-// various
-// entire
-// close
-// legal
-// religious
-// cold
-// final
-// main
-// green
-// nice
-// huge
-// popular
-// traditional
-// cultural
+"full", "special", "easy", "clear", "recent", "certain", "personal", "open", "red", "difficult", "available", "likely", "short", "single", "medical",
+"current", "wrong", "private", "past", "foreign", "fine", "common", "poor", "natural", "significant", "similar", "hot", "dead", "central", "happy",
+"serious", "ready", "simple", "left", "physical", "general", "environmental", "financial", "blue", "democratic", "dark", "various", "entire", "close",
+"legal", "religious", "cold", "final", "main", "green", "nice", "huge", "popular", "traditional", "cultural"]
 
 function setup() {
   noCanvas()
@@ -100,34 +67,23 @@ function setup() {
   video.hide()
   // Initialize the Image Classifier method with MobileNet and the video as the second argument
   classifier = ml5.imageClassifier('MobileNet', video, videoModelReady)
-  // resultsP = createP('Loading model and video...')
 
   // Create the LSTM Generator passing it the model directory
-  // charRNN = ml5.charRNN('./models/woolf/', textModelReady);
   charRNN = ml5.charRNN('./models/andersengrimm/', textModelReady)
 
   // Grab the DOM elements
-  // textInput = select('#textInput')
-  // lengthSlider = select('#lenSlider')
-  // tempSlider = select('#tempSlider')
-  // button = select('#generate')
+  intro = select('#intro')
   resultsP = select('#footer-message')
+  taleTitle = select('#tale-title')
   next = select('.next')
   next.hide()
 
   // DOM element events
-  // button.mousePressed(generate)
-  // lengthSlider.input(updateSliders)
-  // tempSlider.input(updateSliders)
-  next = select('.next')
-  taleTitle = select('#tale-title')
-  next.mousePressed(start)
+  next.mousePressed(lookForInput)
 }
 
-// Update the slider values
-function updateSliders() {
-  select('#length').html(lengthSlider.value())
-  select('#temperature').html(tempSlider.value())
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
 function textModelReady() {
@@ -140,38 +96,39 @@ function videoModelReady() {
   classifyVideo()
 }
 
-// Get a prediction for the current video frame
-function classifyVideo() {
-  classifier.classify(gotResult)
-}
-
-// When we get a result
-function gotResult(err, results, step) {
-  if (tempResult !== results[0].label) { timer = 0 } else timer++
-  
-  tempResult = results[0].label
-  console.log(tempResult)
-  // The results are in an array ordered by confidence.
-  if (nf(results[0].confidence, 0, 2) > 0.2 && timer >= timeTh) {
-    // console.log("YES! I saw a " + results[0].label)
-    resultsP.html('I saw something!')
-    const randomNum = Math.floor(Math.random() * verbs.length)
-    generate("The " + results[0].label + " " + verbs[randomNum] + " ")
-  } else {
-    resultsP.html('I\'m not able to understand what I\'m seeing :(')
-    classifyVideo()
-  }
-  if (timer >= timeTh) timer = 0
-  // resultsP.html('I\'m seeing a' + results[0].label + ' ' + nf(results[0].confidence, 0, 2))
-}
-
-function start() {
+function lookForInput() {
   next.hide()
   classifyVideo()
 }
 
-function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1)
+// Get a prediction for the current video frame
+function classifyVideo() {
+  classifier.classify(gotInputObj)
+}
+
+// When we get a result
+function gotInputObj(err, results) {
+  const foundObj = results[0].label.split(",")[0]
+  // console.log("foundObj: ", foundObj, timer)
+  tempResult !== foundObj ? timer = 0 : timer++
+  tempResult = foundObj
+  
+  // Validate the obj recognition only if the same obj is seen for timeTh consecutive times with a confidence greater than confidenceTh
+  if (nf(results[0].confidence, 0, 2) > confidenceTh && timer >= timeTh) {
+    timer = 0 // resets the confidence counter
+    console.log("YES! I saw a " + foundObj)
+    resultsP.html('I saw something!')
+    const verbSet = verbs[step].values
+    step++
+    if (step > 2) step = 0
+    const randomNumVerb = Math.floor(Math.random() * verbSet.length)
+    const randomNumAdj = Math.floor(Math.random() * adj.length)
+    titleAdj = adj[randomNumAdj]
+    generate("The " + adj[randomNumAdj] + " " + foundObj + " " + verbSet[randomNumVerb] + " ")
+  } else {
+    resultsP.html('I\'m not able to understand what I\'m seeing :(')
+    classifyVideo()
+  }
 }
 
 // Generate new text
@@ -180,50 +137,28 @@ function generate(prompt) {
   // TODO: is there better JS way of doing this?
  if(!runningInference) {
     runningInference = true
-
-    // Update the status log
-    //select('#status').html('Generating...')
-
-    // Grab the original text
-    // let original = textInput.value()
-    let original = prompt
-
-    // Make it to lower case
-    let txt = original.toLowerCase()
-
+    // Grab the prompt text
+    let txt = prompt
     // Check if there's something to send
     if (txt.length > 0) {
       // This is what the LSTM generator needs
       // Seed text, temperature, length to outputs
       // TODO: What are the defaults?
-      // let data = {
-      //   seed: txt,
-      //   temperature: tempSlider.value(),
-      //   length: lengthSlider.value()
-      // }
       data = {
         seed: txt,
         temperature: textTemp,
         length: textLength
       }
-
       // Generate text with the charRNN
       charRNN.generate(data, gotData)
 
       // When it's done
       function gotData(err, result) {
-        // Update the status log
-        //select('#status').html('Ready!')
-        console.log(result.sample)
-        console.log(result.sample.split(/[!?.]/g))
-        const sentence = result.sample.split(/[!?.]/g)[0]
-        //select('.result').html(capitalizeFirstLetter(txt) + sentence + ".")
-        step++
-        const randomNum = Math.floor(Math.random() * adj.length)
-        const titleAdj = adj[randomNum]
-        if(step === 1) {
-          taleTitle.html("The " + titleAdj + " " + tempResult)
-        }
+        console.log("Whole generated text: ", result.sample)
+        const firstSentence = result.sample.split(/[!?.]/g)[0]
+        console.log("Generated text's first first sentence: ", firstSentence)
+        intro.hide()
+        if(step === 1) { taleTitle.html("The " + titleAdj + " " + tempResult) }
         var o = document.createElement("p")
         o.classList.add("pre-result")
         var ot = document.createTextNode("Oh! I saw a " + tempResult)
@@ -231,10 +166,9 @@ function generate(prompt) {
         document.querySelector('main #tale').appendChild(o)
         var p = document.createElement("p")
         p.classList.add("result")
-        var t = document.createTextNode(capitalizeFirstLetter(txt) + sentence + ".")
+        var t = document.createTextNode(capitalizeFirstLetter(txt) + firstSentence + ".")
         p.appendChild(t)
         document.querySelector('main #tale').appendChild(p)
-        // createP(capitalizeFirstLetter(txt) + sentence + ".").addClass('result')
         next.show()
         runningInference = false
       }
