@@ -35,7 +35,8 @@ header #logo {
 }
 main {
   width: 100%;
-  height: calc(100vh - 8rem);
+  overflow: scroll;
+  padding: 4rem 0;
   /* display: flex;
   flex-direction: column;
   align-items: center;
@@ -49,16 +50,11 @@ main {
   margin-top: 16rem;
   line-height: 1.8rem;
 }
-#tale-container {
-  width: 100%;
-  height: calc(100vh - 8rem);
-}
 #tale-title {
   margin-bottom: 3rem;
 }
 #tale {
   width: 100%;
-  /* height: calc(100vh - 16rem); */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -67,11 +63,11 @@ main {
   padding: 6rem 0 12rem 0;
 }
 #control {
-  width: 100%;
-  height: 4rem;
   position: fixed;
   bottom: 4rem;
   left: 0;
+  width: 100%;
+  height: 4rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -82,11 +78,11 @@ main {
   height: 4rem;
 }
 footer {
-  width: 100%;
-  height: 4rem;
   position: fixed;
   bottom: 0;
   left: 0;
+  width: 100%;
+  height: 4rem;
   display: flex;
   align-items: center;
   justify-content: center;
